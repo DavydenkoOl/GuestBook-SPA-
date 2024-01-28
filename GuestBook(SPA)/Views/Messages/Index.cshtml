@@ -1,0 +1,219 @@
+﻿@* @model IEnumerable<GuestBook_SPA_.Models.Messages> *@
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int id1 = 0;
+    int.TryParse(Context.Session.GetString("UserID"), out id1 );
+}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200;0,6..12,400;0,6..12,500;0,6..12,600;0,6..12,700;0,6..12,800;0,6..12,900;1,6..12,200&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="~/js/site.js"></script>
+
+
+
+<div id="container" style="display:flex; width:100%;height:auto;">
+    <div id="links_div">
+        <h4>Оставить отзыв:</h4>
+
+        <div class="row">
+            <div class="col-md-4">
+                <form >
+                    <input type="hidden" id="hdn-mess-id" />
+                    <input type="hidden" id="hdn-us-id" />
+                    <input type="hidden" id="hdn-data" />
+                    <input type="hidden" id="hdn-mess-id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <textarea id="textArea" style="width: 500px; height:300px; border:2px solid #60d5da; border-radius: 15px; background-color: #769ad7; font-style:italic;padding:15px;">
+
+                        </textarea>
+                        <span class="text-danger"></span>
+                      
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <input class="form-control" style="visibility:hidden" />
+
+                    </div>
+                    <div class="form-group" style="width: 500px;display:flex; justify-content: space-between">
+                        <input  value="Добавить" class="btn btn-primary" id="btn-insert-mess" style="width:100px"/>
+                        <input value="Сохранить" class="btn btn-primary" id="btn-save-mess" style="width:110px;visibility:hidden;" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="richt_div" style="margin-top:40px;margin-left:50px;overflow: scroll;height:700px;overflow-x: hidden;">
+       
+    </div>
+</div>
+@section Scripts 
+{
+
+    <script>
+
+
+
+        $(document).ready(function () {
+
+           
+            getListMessages();
+
+           
+            $("body").on("click", ".btn-get-mess", function () {
+                let id = $(this).data("messid");
+               getMess(id);
+                let el = document.getElementById("btn-insert-mess");
+                el.style.visibility = "hidden";
+                document.getElementById("btn-save-mess").style.visibility = "visible";
+            });
+
+            // создание строки для таблицы
+            let _div = function (messag) {
+
+                let itemMarkup = "<div id='mess'>" +
+                    "<h5>" + messag.Owner.FirstName + "  " + messag.Owner.LastName + "</h5>" +
+                    "<div style='margin-top: 20px'>" +
+                    "<p>" + messag.Message + "</p>" +
+                    "</div>" +
+                    "<div>" + messag.CreatedDate + "</div>";
+
+                if (@id1 === messag.Id_user) {
+                    itemMarkup += "<div style='width: 100%; display:flex; justify-content: space-between'>" +
+                        "<a href='javascript: void (0)' class='btn-get-mess' data-messid='" + messag.Id + "' style='width:10%; color: #102dcd; text-decoration: none;font-size:20px;font-style:italic; font-weight:800'>Изменить</a>" +
+                        "<a href='javascript: void (0)' class='btn-del-mess' id='btn-del-mess' data-messid='" + messag.Id + "' style='width:10%; color: #e93b0b; text-decoration: none;font-size:20px;font-style:italic; font-weight:800'>Удалить</a>" +
+                        "</div>";
+                }
+
+                itemMarkup += "</div>";
+                return itemMarkup;
+            };
+
+            // Получение всех студентов
+            function getListMessages() {
+                $.ajax({
+                    url: "https://localhost:7106/Messages/GetListMessage",
+                    type: 'GET',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        let divs = "";
+                        let mess = JSON.parse(response);
+                        $.each(mess, function (index, messag) {
+
+                            divs += _div(messag);
+                        })
+                        $("#richt_div").html(divs);
+                    },
+                    error: function (x, y, z) {
+                       
+                        console.log(x.statusCode);
+                    }
+                });
+            }
+
+            function getMess(messagid) {
+
+                let url = '@Url.Action("GetMessagById", "Messages")' + '/' + messagid;
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        var mess = JSON.parse(response);
+                        $("#textArea").val(mess.Message);
+                        $("#hdn-mess-id").val(mess.Id);
+                        $("#hdn-us-id").val(mess.Id_user);
+                        
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            }
+            $("#btn-save-mess").on("click", function () {
+                let formData = new FormData();
+                formData.append("id", $("#hdn-mess-id").val());
+                formData.append("Message", $("#textArea").val());
+                formData.append("Id_user", $("#hdn-us-id").val());
+                document.getElementById("btn-save-mess").style.visibility = "hidden";
+                document.getElementById("btn-insert-mess").style.visibility = "visible";
+                $.ajax({
+                    type: 'PUT',
+                    url: '@Url.Action("UpdateMessag", "Messages")',
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    success: function (response) {
+                        alert(response);
+                        resetForm();
+                        getListMessages();
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+            function resetForm() {
+                $("#hdn-mess-id").val("");
+                $("#textArea").val("");
+                $("#hdn-us-id").val("");
+               
+            }
+
+            //DELETE
+            $("body").on("click", ".btn-del-mess" , function () {
+                let id = $(this).data("messid");
+                if (!confirm("Вы действительно желаете удалить отзыв?"))
+                    return;
+                let formData = new FormData();
+
+                formData.append("id", id);
+                $.ajax({
+                    type: 'DELETE',
+                    url: '@Url.Action("DeleteMessag", "Messages")',
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    success: function (response) {
+                        alert(response);
+                        resetForm();
+                        getListMessages();
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+            //Add
+            $("#btn-insert-mess").on("click", function () {
+                let formData = new FormData();
+                formData.append("Message", $("#textArea").val());
+                formData.append("Id_user", @id1);
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("InsertStudent", "Messages")',
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    success: function (response) {
+                        alert(response);
+                        resetForm();
+                        getListMessages();
+                    },
+                    error: function (x, y, z) {
+                        alert(x + '\n' + y + '\n' + z);
+                    }
+                });
+            });
+        });
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
