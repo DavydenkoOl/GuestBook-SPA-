@@ -1,4 +1,4 @@
-﻿@* @model IEnumerable<GuestBook_SPA_.Models.Messages> *@
+﻿
 
 @{
     ViewData["Title"] = "Index";
@@ -9,8 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200;0,6..12,400;0,6..12,500;0,6..12,600;0,6..12,700;0,6..12,800;0,6..12,900;1,6..12,200&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<script src="~/js/site.js"></script>
-
+<script src="~/js/site.js" asp-append-version="true"></script>
 
 
 <div id="container" style="display:flex; width:100%;height:auto;">
@@ -51,9 +50,16 @@
        
     </div>
 </div>
+
+
 @section Scripts 
 {
-
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    
     <script>
 
 
@@ -211,7 +217,69 @@
                     }
                 });
             });
+
+            $("#loginDialog").on("click", function (e) {
+                e.preventDefault();
+               
+
+                $("<div id='dialogContent'></div>")
+                    .addClass("dialog")
+                    .appendTo("body")
+                    .load("https://localhost:7106/Account/Login")
+                    .dialog({
+                        title: $(this).attr("data-dialog-title"),
+                        close: function () { $(this).remove() },
+                        modal: true,
+                        buttons: {
+                            "Сохранить": function () {
+                                $.ajax({
+                                    url: "@Url.Action("Login", "Account")",
+                                    type: "POST",
+                                    data: $('form').serialize(),
+                                    datatype: "json",
+                                    success: function (result) {
+
+                                        $("#dialogContent").html(result);
+                                    }
+                                });
+                            }
+                        }
+                    });
+            });
+
+            $("#registrDialog").on("click", function (e) {
+                e.preventDefault();
+
+
+                $("<div id='dialogContent' ></div>")
+                    .addClass("dialog")
+                    .css({ "border-radius": "10px", "background-color": "blue" })
+                    .appendTo("body")
+                    .load("https://localhost:7106/Account/Register")
+                    .dialog({
+                        title: $(this).attr("data-dialog-title"),
+                        close: function () { $(this).remove() },
+                        modal: true,
+                        buttons: {
+                            "Сохранить": function () {
+                                $.ajax({
+                                    url: "@Url.Action("Register", "Account")",
+                                    type: "POST",
+                                    data: $('form').serialize(),
+                                    datatype: "json",
+                                    success: function (result) {
+
+                                        $("#dialogContent").html(result);
+                                    }
+                                });
+                            }
+                        }
+                    });
+            });
+
         });
+        
+
     </script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
