@@ -229,21 +229,7 @@
                     .dialog({
                         title: $(this).attr("data-dialog-title"),
                         close: function () { $(this).remove() },
-                        modal: true,
-                        buttons: {
-                            "Сохранить": function () {
-                                $.ajax({
-                                    url: "@Url.Action("Login", "Account")",
-                                    type: "POST",
-                                    data: $('form').serialize(),
-                                    datatype: "json",
-                                    success: function (result) {
-
-                                        $("#dialogContent").html(result);
-                                    }
-                                });
-                            }
-                        }
+                        modal: true
                     });
             });
 
@@ -251,31 +237,19 @@
                 e.preventDefault();
 
 
-                $("<div id='dialogContent' ></div>")
-                    .addClass("dialog")
-                    .css({ "border-radius": "10px", "background-color": "blue" })
+                $("<div id='dialogContent' '></div>")
+                     .addClass("dialog")
+                    // .css({ "border-radius": "10px", "background-color": "blue" })
                     .appendTo("body")
                     .load("https://localhost:7106/Account/Register")
                     .dialog({
                         title: $(this).attr("data-dialog-title"),
                         close: function () { $(this).remove() },
-                        modal: true,
-                        buttons: {
-                            "Сохранить": function () {
-                                $.ajax({
-                                    url: "@Url.Action("Register", "Account")",
-                                    type: "POST",
-                                    data: $('form').serialize(),
-                                    datatype: "json",
-                                    success: function (result) {
-
-                                        $("#dialogContent").html(result);
-                                    }
-                                });
-                            }
-                        }
+                        modal: true
                     });
             });
+
+           
 
         });
         

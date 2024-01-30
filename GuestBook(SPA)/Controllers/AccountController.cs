@@ -15,13 +15,19 @@ namespace GuestBook_SPA_.Controllers
         {
             _repository = context;
         }
+        public ActionResult Logout()
 
+        {
+            HttpContext.Session.Clear();
+            return View("~/Views/Messages/Index.cshtml");
+        }
         public ActionResult Login()
 
         {
             HttpContext.Session.Clear();
             return View();
         }
+
         public IActionResult Create()
         {
             return View();

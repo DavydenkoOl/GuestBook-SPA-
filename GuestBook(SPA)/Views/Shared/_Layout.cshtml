@@ -26,7 +26,7 @@
                 else
                 {
                     <span class="navbar-brand"> @Context.Session.GetString("FirstName")  @Context.Session.GetString("LastName")</span>
-                    <a class="navbar-brand" asp-area="" asp-controller="Account" asp-action="Login">Выйти</a>
+                    <a id="exit" class="navbar-brand" asp-area="" asp-controller="Account" asp-action="Logout">Выйти</a>
                 }
 
 
